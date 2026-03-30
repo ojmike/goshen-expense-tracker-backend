@@ -30,6 +30,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final ExpenseCategoryService expenseCategoryService;
 
     public record AuthTokens(String accessToken, String refreshToken) {}
 
@@ -44,6 +45,7 @@ public class AuthService {
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         userRepository.save(user);
+        expenseCategoryService.seedDefaultCategories(user);
 
         return createTokens(user);
     }
