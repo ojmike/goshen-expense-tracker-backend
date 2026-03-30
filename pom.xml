@@ -84,6 +84,13 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
+        <!-- Plaid -->
+        <dependency>
+            <groupId>com.plaid</groupId>
+            <artifactId>plaid-java</artifactId>
+            <version>29.0.0</version>
+        </dependency>
+
         <!-- Utilities -->
         <dependency>
             <groupId>org.projectlombok</groupId>
