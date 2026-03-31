@@ -117,7 +117,17 @@ public class AuthService {
 
     public UserResponse getCurrentUser(Authentication auth) {
         User user = (User) auth.getPrincipal();
-        return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName());
+        return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(),
+                user.getTrackingStartYear(), user.getTrackingStartMonth());
+    }
+
+    public UserResponse setTrackingStart(Authentication auth, int year, int month) {
+        User user = userRepository.findById(((User) auth.getPrincipal()).getId()).orElseThrow();
+        user.setTrackingStartYear(year);
+        user.setTrackingStartMonth(month);
+        userRepository.save(user);
+        return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(),
+                user.getTrackingStartYear(), user.getTrackingStartMonth());
     }
 
     private AuthTokens createTokens(User user) {

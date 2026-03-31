@@ -88,6 +88,15 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
+    @PutMapping("/me/tracking-start")
+    public ResponseEntity<UserResponse> setTrackingStart(
+            Authentication authentication,
+            @RequestParam int year,
+            @RequestParam int month) {
+        UserResponse userResponse = authService.setTrackingStart(authentication, year, month);
+        return ResponseEntity.ok(userResponse);
+    }
+
     private ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)

@@ -44,6 +44,12 @@ public class User implements UserDetails {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(name = "tracking_start_year")
+    private Integer trackingStartYear;
+
+    @Column(name = "tracking_start_month")
+    private Integer trackingStartMonth;
+
     @Override
     public String getUsername() {
         return email;

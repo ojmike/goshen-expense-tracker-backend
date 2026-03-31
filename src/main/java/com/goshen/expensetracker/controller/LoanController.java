@@ -68,4 +68,14 @@ public class LoanController {
         loanService.deletePayment(id, paymentId, user);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/copy-payments")
+    public ResponseEntity<List<LoanPaymentResponse>> copyPaymentsFromPreviousMonth(
+            @RequestParam int year,
+            @RequestParam int month,
+            Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(loanService.copyPaymentsFromPreviousMonth(user, year, month));
+    }
 }

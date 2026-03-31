@@ -20,5 +20,7 @@ public record IncomeSourceRequest(
         PayFrequency frequency,
 
         @NotNull(message = "Next pay date is required")
-        LocalDate nextPayDate
+        LocalDate nextPayDate,
+
+        Integer secondPayDay
 ) {}

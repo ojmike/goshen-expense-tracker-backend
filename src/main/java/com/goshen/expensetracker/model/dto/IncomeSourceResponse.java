@@ -10,6 +10,7 @@ public record IncomeSourceResponse(
         BigDecimal amount,
         String frequency,
         LocalDate nextPayDate,
+        Integer secondPayDay,
         BigDecimal monthlyEquivalent,
         LocalDateTime createdAt
 ) {}

@@ -79,6 +79,34 @@ public class ExpenseService {
         expenseRepository.delete(expense);
     }
 
+    public List<ExpenseResponse> copyFromPreviousMonth(User user, int year, int month) {
+        LocalDate targetMonth = LocalDate.of(year, month, 1);
+        LocalDate prevStart = targetMonth.minusMonths(1);
+        LocalDate prevEnd = targetMonth;
+
+        List<Expense> previousExpenses = expenseRepository.findByUserIdAndMonth(user.getId(), prevStart, prevEnd);
+
+        if (previousExpenses.isEmpty()) {
+            throw new ResourceNotFoundException("No expenses found in the previous month to copy");
+        }
+
+        List<Expense> copies = previousExpenses.stream().map(prev -> {
+            Expense copy = new Expense();
+            copy.setUser(user);
+            copy.setCategory(prev.getCategory());
+            copy.setName(prev.getName());
+            copy.setAmount(prev.getAmount());
+            copy.setExpenseType(prev.getExpenseType());
+            int day = Math.min(prev.getExpenseDate().getDayOfMonth(), targetMonth.lengthOfMonth());
+            copy.setExpenseDate(targetMonth.withDayOfMonth(day));
+            return copy;
+        }).toList();
+
+        return expenseRepository.saveAll(copies).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private ExpenseResponse toResponse(Expense expense) {
         return new ExpenseResponse(
                 expense.getId(),

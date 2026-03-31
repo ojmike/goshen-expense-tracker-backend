@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +92,49 @@ public class LoanService {
     public void deleteLoan(Long id, User user) {
         Loan loan = findLoanByUser(id, user);
         loanRepository.delete(loan);
+    }
+
+    public List<LoanPaymentResponse> copyPaymentsFromPreviousMonth(User user, int year, int month) {
+        LocalDate targetMonth = LocalDate.of(year, month, 1);
+        LocalDate prevStart = targetMonth.minusMonths(1);
+        LocalDate prevEnd = targetMonth;
+
+        List<LoanPayment> previousPayments = loanPaymentRepository.findByUserIdAndMonth(user.getId(), prevStart, prevEnd);
+
+        if (previousPayments.isEmpty()) {
+            throw new ResourceNotFoundException("No loan payments found in the previous month to copy");
+        }
+
+        List<LoanPaymentResponse> responses = new ArrayList<>();
+        for (LoanPayment prev : previousPayments) {
+            Loan loan = prev.getLoan();
+            BigDecimal totalPaid = loanPaymentRepository.sumPaymentsByLoanId(loan.getId());
+            BigDecimal remainingBalance = loan.getOriginalAmount().subtract(totalPaid);
+
+            if (prev.getAmount().compareTo(remainingBalance) > 0) {
+                continue;
+            }
+
+            LoanPayment copy = new LoanPayment();
+            copy.setLoan(loan);
+            copy.setAmount(prev.getAmount());
+            int day = Math.min(prev.getPaymentDate().getDayOfMonth(), targetMonth.lengthOfMonth());
+            copy.setPaymentDate(targetMonth.withDayOfMonth(day));
+            copy.setNote(prev.getNote());
+            copy = loanPaymentRepository.save(copy);
+
+            BigDecimal balanceAfter = remainingBalance.subtract(copy.getAmount());
+            responses.add(new LoanPaymentResponse(
+                    copy.getId(),
+                    copy.getAmount(),
+                    copy.getPaymentDate(),
+                    copy.getNote(),
+                    balanceAfter,
+                    copy.getCreatedAt()
+            ));
+        }
+
+        return responses;
     }
 
     public void deletePayment(Long loanId, Long paymentId, User user) {

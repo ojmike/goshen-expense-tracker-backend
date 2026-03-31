@@ -37,6 +37,9 @@ public class IncomeSource {
     @Column(name = "next_pay_date", nullable = false)
     private LocalDate nextPayDate;
 
+    @Column(name = "second_pay_day")
+    private Integer secondPayDay;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

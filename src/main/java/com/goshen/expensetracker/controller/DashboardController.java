@@ -1,7 +1,9 @@
 package com.goshen.expensetracker.controller;
 
+import com.goshen.expensetracker.model.dto.CashFlowResponse;
 import com.goshen.expensetracker.model.dto.DashboardResponse;
 import com.goshen.expensetracker.model.entity.User;
+import com.goshen.expensetracker.service.CashFlowService;
 import com.goshen.expensetracker.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final CashFlowService cashFlowService;
 
     @GetMapping
     public ResponseEntity<DashboardResponse> getOverview(
@@ -25,5 +28,14 @@ public class DashboardController {
             Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(dashboardService.getOverview(user, year, month));
+    }
+
+    @GetMapping("/cashflow")
+    public ResponseEntity<CashFlowResponse> getCashFlow(
+            @RequestParam int year,
+            @RequestParam int month,
+            Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(cashFlowService.getCashFlow(user, year, month));
     }
 }

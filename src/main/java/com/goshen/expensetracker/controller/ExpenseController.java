@@ -3,6 +3,7 @@ package com.goshen.expensetracker.controller;
 import com.goshen.expensetracker.model.dto.ExpenseRequest;
 import com.goshen.expensetracker.model.dto.ExpenseResponse;
 import com.goshen.expensetracker.model.dto.MonthlyExpenseOverview;
+import java.util.List;
 import com.goshen.expensetracker.model.entity.User;
 import com.goshen.expensetracker.service.ExpenseService;
 import jakarta.validation.Valid;
@@ -51,5 +52,15 @@ public class ExpenseController {
         User user = (User) authentication.getPrincipal();
         expenseService.delete(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/copy-previous")
+    public ResponseEntity<List<ExpenseResponse>> copyFromPreviousMonth(
+            @RequestParam int year,
+            @RequestParam int month,
+            Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(expenseService.copyFromPreviousMonth(user, year, month));
     }
 }
