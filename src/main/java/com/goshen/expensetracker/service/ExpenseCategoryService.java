@@ -70,8 +70,9 @@ public class ExpenseCategoryService {
         ExpenseCategory category = categoryRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-        if (categoryRepository.existsByUserIdAndNameIgnoreCase(user.getId(), request.name())
-                && !category.getName().equalsIgnoreCase(request.name())) {
+        // Allow keeping the same name (case-insensitive), reject if another category has this name
+        boolean nameUnchanged = category.getName().equalsIgnoreCase(request.name());
+        if (!nameUnchanged && categoryRepository.existsByUserIdAndNameIgnoreCase(user.getId(), request.name())) {
             throw new IllegalArgumentException("A category with this name already exists");
         }
 

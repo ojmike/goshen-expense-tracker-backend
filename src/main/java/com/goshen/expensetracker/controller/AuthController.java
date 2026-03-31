@@ -23,7 +23,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Value("${app.cookie.secure:false}")
+    @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
     @PostMapping("/register")

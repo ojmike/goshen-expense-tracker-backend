@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "loans")
@@ -28,6 +30,9 @@ public class Loan {
 
     @Column(name = "original_amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal originalAmount;
+
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LoanPayment> payments = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
