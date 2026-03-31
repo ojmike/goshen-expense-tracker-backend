@@ -5,6 +5,7 @@ import com.goshen.expensetracker.model.dto.CategoryRequest;
 import com.goshen.expensetracker.model.dto.CategoryResponse;
 import com.goshen.expensetracker.model.entity.ExpenseCategory;
 import com.goshen.expensetracker.model.entity.User;
+import com.goshen.expensetracker.repository.BankTransactionRepository;
 import com.goshen.expensetracker.repository.ExpenseCategoryRepository;
 import com.goshen.expensetracker.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,14 @@ public class ExpenseCategoryService {
 
     private final ExpenseCategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
+    private final BankTransactionRepository bankTransactionRepository;
 
     public void seedDefaultCategories(User user) {
         for (String name : DEFAULT_CATEGORIES) {
+            // Make seeding idempotent — skip if already exists
+            if (categoryRepository.existsByUserIdAndNameIgnoreCase(user.getId(), name)) {
+                continue;
+            }
             ExpenseCategory category = new ExpenseCategory();
             category.setUser(user);
             category.setName(name);
@@ -80,6 +86,11 @@ public class ExpenseCategoryService {
         if (expenseRepository.existsByCategoryId(category.getId())) {
             throw new IllegalArgumentException("Cannot delete a category that has expenses attached");
         }
+
+        if (bankTransactionRepository.existsByCategoryId(category.getId())) {
+            throw new IllegalArgumentException("Cannot delete a category that has bank transactions attached");
+        }
+
         categoryRepository.delete(category);
     }
 

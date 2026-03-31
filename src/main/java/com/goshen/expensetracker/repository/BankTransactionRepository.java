@@ -23,5 +23,9 @@ public interface BankTransactionRepository extends JpaRepository<BankTransaction
 
     boolean existsByPlaidTransactionId(String plaidTransactionId);
 
+    Optional<BankTransaction> findByPlaidTransactionId(String plaidTransactionId);
+
     void deleteByLinkedAccountId(Long linkedAccountId);
+
+    boolean existsByCategoryId(Long categoryId);
 }

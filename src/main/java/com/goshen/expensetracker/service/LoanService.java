@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,9 @@ public class LoanService {
     }
 
     public LoanResponse createLoan(LoanRequest request, User user) {
+        if (request.originalAmount() == null || request.originalAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Loan original amount must be positive");
+        }
         Loan loan = new Loan();
         loan.setUser(user);
         loan.setName(request.name());
@@ -42,7 +46,8 @@ public class LoanService {
     @Transactional(readOnly = true)
     public LoanDetailResponse getLoanDetail(Long id, User user) {
         Loan loan = findLoanByUser(id, user);
-        BigDecimal totalPaid = loanPaymentRepository.sumPaymentsByLoanId(loan.getId());
+        BigDecimal totalPaid = Objects.requireNonNullElse(
+                loanPaymentRepository.sumPaymentsByLoanId(loan.getId()), BigDecimal.ZERO);
         BigDecimal remainingBalance = loan.getOriginalAmount().subtract(totalPaid);
 
         List<LoanPayment> payments = loanPaymentRepository.findByLoanIdOrderByPaymentDateAscCreatedAtAsc(loan.getId());
@@ -61,7 +66,11 @@ public class LoanService {
 
     public LoanPaymentResponse recordPayment(Long loanId, LoanPaymentRequest request, User user) {
         Loan loan = findLoanByUser(loanId, user);
-        BigDecimal totalPaid = loanPaymentRepository.sumPaymentsByLoanId(loan.getId());
+        if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Payment amount must be positive");
+        }
+        BigDecimal totalPaid = Objects.requireNonNullElse(
+                loanPaymentRepository.sumPaymentsByLoanId(loan.getId()), BigDecimal.ZERO);
         BigDecimal remainingBalance = loan.getOriginalAmount().subtract(totalPaid);
 
         if (request.amount().compareTo(remainingBalance) > 0) {
@@ -150,7 +159,8 @@ public class LoanService {
     }
 
     private LoanResponse toResponse(Loan loan) {
-        BigDecimal totalPaid = loanPaymentRepository.sumPaymentsByLoanId(loan.getId());
+        BigDecimal totalPaid = Objects.requireNonNullElse(
+                loanPaymentRepository.sumPaymentsByLoanId(loan.getId()), BigDecimal.ZERO);
         BigDecimal remainingBalance = loan.getOriginalAmount().subtract(totalPaid);
         return new LoanResponse(
                 loan.getId(),

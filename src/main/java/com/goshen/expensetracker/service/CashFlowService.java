@@ -50,9 +50,12 @@ public class CashFlowService {
         // Expense events
         List<Expense> expenses = expenseRepository.findByUserIdAndMonth(user.getId(), monthStart, monthEnd);
         for (Expense expense : expenses) {
+            String categoryName = expense.getCategory() != null
+                    ? expense.getCategory().getName()
+                    : "Uncategorized";
             events.add(new CashFlowEvent(
                     expense.getExpenseDate(),
-                    expense.getName() + " (" + expense.getCategory().getName() + ")",
+                    expense.getName() + " (" + categoryName + ")",
                     "EXPENSE",
                     expense.getAmount().negate(),
                     BigDecimal.ZERO

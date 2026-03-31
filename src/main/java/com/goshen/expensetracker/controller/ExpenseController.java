@@ -25,7 +25,9 @@ public class ExpenseController {
             @RequestParam int year,
             @RequestParam int month,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(expenseService.getMonthlyOverview(user, year, month));
     }
 
@@ -33,7 +35,9 @@ public class ExpenseController {
     public ResponseEntity<ExpenseResponse> create(
             @Valid @RequestBody ExpenseRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(expenseService.create(request, user));
     }
@@ -43,13 +47,17 @@ public class ExpenseController {
             @PathVariable Long id,
             @Valid @RequestBody ExpenseRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(expenseService.update(id, request, user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         expenseService.delete(id, user);
         return ResponseEntity.noContent().build();
     }
@@ -59,7 +67,9 @@ public class ExpenseController {
             @RequestParam int year,
             @RequestParam int month,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(expenseService.copyFromPreviousMonth(user, year, month));
     }

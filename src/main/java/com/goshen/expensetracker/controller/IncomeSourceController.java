@@ -21,7 +21,9 @@ public class IncomeSourceController {
 
     @GetMapping
     public ResponseEntity<IncomeOverviewResponse> getOverview(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(incomeSourceService.getOverview(user));
     }
 
@@ -29,7 +31,9 @@ public class IncomeSourceController {
     public ResponseEntity<IncomeSourceResponse> create(
             @Valid @RequestBody IncomeSourceRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(incomeSourceService.create(request, user));
     }
@@ -39,13 +43,17 @@ public class IncomeSourceController {
             @PathVariable Long id,
             @Valid @RequestBody IncomeSourceRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(incomeSourceService.update(id, request, user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         incomeSourceService.delete(id, user);
         return ResponseEntity.noContent().build();
     }

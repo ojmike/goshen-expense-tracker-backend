@@ -22,7 +22,9 @@ public class ExpenseCategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAll(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(categoryService.getAll(user));
     }
 
@@ -30,7 +32,9 @@ public class ExpenseCategoryController {
     public ResponseEntity<CategoryResponse> create(
             @Valid @RequestBody CategoryRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(categoryService.create(request, user));
     }
@@ -40,13 +44,17 @@ public class ExpenseCategoryController {
             @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(categoryService.update(id, request, user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         categoryService.delete(id, user);
         return ResponseEntity.noContent().build();
     }

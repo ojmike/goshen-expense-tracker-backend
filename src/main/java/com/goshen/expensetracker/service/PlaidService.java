@@ -105,12 +105,15 @@ public class PlaidService {
         LinkedAccount account = linkedAccountRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Linked account not found"));
 
-        // Remove item from Plaid
+        // Remove item from Plaid — abort local deletion if this fails
         try {
             ItemRemoveRequest request = new ItemRemoveRequest().accessToken(account.getAccessToken());
-            plaidApi.itemRemove(request).execute();
+            Response<ItemRemoveResponse> plaidResponse = plaidApi.itemRemove(request).execute();
+            if (!plaidResponse.isSuccessful()) {
+                throw new IllegalStateException("Failed to remove Plaid item: non-successful response");
+            }
         } catch (Exception e) {
-            log.warn("Failed to remove Plaid item {}: {}", account.getItemId(), e.getMessage());
+            throw new IllegalStateException("Failed to remove Plaid item " + account.getItemId() + ": " + e.getMessage(), e);
         }
 
         bankTransactionRepository.deleteByLinkedAccountId(account.getId());
@@ -179,6 +182,28 @@ public class PlaidService {
 
                 bankTransactionRepository.save(bt);
                 synced++;
+            }
+
+            // Process modified transactions
+            for (Transaction txn : body.getModified()) {
+                bankTransactionRepository.findByPlaidTransactionId(txn.getTransactionId())
+                        .ifPresent(bt -> {
+                            BigDecimal amount = BigDecimal.valueOf(txn.getAmount());
+                            bt.setName(txn.getName());
+                            bt.setAmount(amount);
+                            bt.setTransactionDate(txn.getDate());
+                            List<String> categories = txn.getCategory();
+                            String plaidCategory = categories != null ? String.join(" > ", categories) : null;
+                            bt.setPlaidCategory(plaidCategory);
+                            bt.setCategory(autoCategorize(txn.getName(), plaidCategory, categoryMap));
+                            bankTransactionRepository.save(bt);
+                        });
+            }
+
+            // Process removed transactions
+            for (RemovedTransaction removed : body.getRemoved()) {
+                bankTransactionRepository.findByPlaidTransactionId(removed.getTransactionId())
+                        .ifPresent(bankTransactionRepository::delete);
             }
 
             cursor = body.getNextCursor();

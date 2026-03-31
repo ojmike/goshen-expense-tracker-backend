@@ -25,7 +25,9 @@ public class PlaidController {
 
     @PostMapping("/link-token")
     public ResponseEntity<LinkTokenResponse> createLinkToken(Authentication authentication) throws IOException {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         String linkToken = plaidService.createLinkToken(user);
         return ResponseEntity.ok(new LinkTokenResponse(linkToken));
     }
@@ -34,7 +36,9 @@ public class PlaidController {
     public ResponseEntity<LinkedAccountResponse> exchangeToken(
             @Valid @RequestBody ExchangeTokenRequest request,
             Authentication authentication) throws IOException {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         LinkedAccountResponse response = plaidService.exchangeToken(
                 request.publicToken(), request.institutionName(), user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -42,7 +46,9 @@ public class PlaidController {
 
     @GetMapping("/accounts")
     public ResponseEntity<List<LinkedAccountResponse>> getAccounts(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(plaidService.getLinkedAccounts(user));
     }
 
@@ -50,7 +56,9 @@ public class PlaidController {
     public ResponseEntity<Void> unlinkAccount(
             @PathVariable Long id,
             Authentication authentication) throws IOException {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         plaidService.unlinkAccount(id, user);
         return ResponseEntity.noContent().build();
     }
@@ -59,7 +67,9 @@ public class PlaidController {
     public ResponseEntity<Map<String, Integer>> syncTransactions(
             @PathVariable Long id,
             Authentication authentication) throws IOException {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         int synced = plaidService.syncTransactions(id, user);
         return ResponseEntity.ok(Map.of("synced", synced));
     }

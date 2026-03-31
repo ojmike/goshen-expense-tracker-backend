@@ -81,6 +81,9 @@ public class AuthService {
 
     public void forgotPassword(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
+            // Revoke any existing unused tokens for this user
+            passwordResetTokenRepository.markAllUnusedAsUsedByUser(user);
+
             String token = UUID.randomUUID().toString();
             PasswordResetToken resetToken = new PasswordResetToken();
             resetToken.setToken(token);
@@ -122,6 +125,12 @@ public class AuthService {
     }
 
     public UserResponse setTrackingStart(Authentication auth, int year, int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12");
+        }
+        if (year < 2000 || year > 2100) {
+            throw new IllegalArgumentException("Year is out of supported range");
+        }
         User user = userRepository.findById(((User) auth.getPrincipal()).getId()).orElseThrow();
         user.setTrackingStartYear(year);
         user.setTrackingStartMonth(month);

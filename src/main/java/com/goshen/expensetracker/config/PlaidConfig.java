@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 @Configuration
 public class PlaidConfig {
@@ -33,9 +34,11 @@ public class PlaidConfig {
     }
 
     private String resolveBaseUrl() {
-        return switch (environment) {
+        return switch (environment.toLowerCase(Locale.ROOT)) {
             case "production" -> ApiClient.Production;
-            default -> ApiClient.Sandbox;
+            case "development" -> ApiClient.Development;
+            case "sandbox" -> ApiClient.Sandbox;
+            default -> throw new IllegalArgumentException("Unsupported plaid.environment: " + environment);
         };
     }
 }

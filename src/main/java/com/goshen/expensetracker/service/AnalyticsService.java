@@ -145,7 +145,7 @@ public class AnalyticsService {
 
         for (Map.Entry<YearMonth, BigDecimal> entry : paymentsByMonth.entrySet()) {
             cumulativePaid = cumulativePaid.add(entry.getValue());
-            BigDecimal remaining = totalOriginal.subtract(cumulativePaid);
+            BigDecimal remaining = totalOriginal.subtract(cumulativePaid).max(BigDecimal.ZERO);
             snapshots.add(new DebtSnapshot(
                     entry.getKey().getYear(),
                     entry.getKey().getMonthValue(),

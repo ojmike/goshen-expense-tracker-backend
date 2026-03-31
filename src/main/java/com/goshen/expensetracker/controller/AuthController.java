@@ -5,6 +5,7 @@ import com.goshen.expensetracker.service.AuthService;
 import com.goshen.expensetracker.service.AuthService.AuthTokens;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -21,6 +22,9 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -60,8 +64,8 @@ public class AuthController {
         }
         ResponseCookie clearCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(false)
-                .path("/api/auth/refresh")
+                .secure(cookieSecure)
+                .path("/api/auth")
                 .maxAge(0)
                 .sameSite("Lax")
                 .build();
@@ -100,8 +104,8 @@ public class AuthController {
     private ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false)
-                .path("/api/auth/refresh")
+                .secure(cookieSecure)
+                .path("/api/auth")
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Lax")
                 .build();

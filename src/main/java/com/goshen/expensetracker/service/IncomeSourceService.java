@@ -22,7 +22,7 @@ import java.util.List;
 public class IncomeSourceService {
 
     private static final BigDecimal FIFTY_TWO = new BigDecimal("52");
-    private static final BigDecimal TWO = new BigDecimal("2");
+    private static final BigDecimal TWENTY_SIX = new BigDecimal("26");
     private static final BigDecimal TWELVE = new BigDecimal("12");
 
     private final IncomeSourceRepository incomeSourceRepository;
@@ -76,7 +76,7 @@ public class IncomeSourceService {
     public BigDecimal calculateMonthlyEquivalent(BigDecimal amount, PayFrequency frequency) {
         return switch (frequency) {
             case WEEKLY -> amount.multiply(FIFTY_TWO).divide(TWELVE, 4, RoundingMode.HALF_UP);
-            case BIWEEKLY -> amount.multiply(TWO);
+            case BIWEEKLY -> amount.multiply(TWENTY_SIX).divide(TWELVE, 4, RoundingMode.HALF_UP);
             case MONTHLY -> amount;
         };
     }

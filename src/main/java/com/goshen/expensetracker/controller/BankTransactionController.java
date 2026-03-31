@@ -6,6 +6,7 @@ import com.goshen.expensetracker.model.entity.User;
 import com.goshen.expensetracker.service.BankTransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,9 @@ public class BankTransactionController {
             @RequestParam int year,
             @RequestParam int month,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(bankTransactionService.getTransactions(user, year, month));
     }
 
@@ -33,7 +36,9 @@ public class BankTransactionController {
             @PathVariable Long id,
             @Valid @RequestBody TransactionCategoryUpdate request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(bankTransactionService.updateCategory(id, request.categoryId(), user));
     }
 
@@ -41,7 +46,9 @@ public class BankTransactionController {
     public ResponseEntity<BankTransactionResponse> markReviewed(
             @PathVariable Long id,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(bankTransactionService.markReviewed(id, user));
     }
 }

@@ -21,7 +21,9 @@ public class LoanController {
 
     @GetMapping
     public ResponseEntity<List<LoanResponse>> getAllLoans(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(loanService.getAllLoans(user));
     }
 
@@ -29,7 +31,9 @@ public class LoanController {
     public ResponseEntity<LoanResponse> createLoan(
             @Valid @RequestBody LoanRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(loanService.createLoan(request, user));
     }
 
@@ -37,7 +41,9 @@ public class LoanController {
     public ResponseEntity<LoanDetailResponse> getLoanDetail(
             @PathVariable Long id,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(loanService.getLoanDetail(id, user));
     }
 
@@ -45,7 +51,9 @@ public class LoanController {
     public ResponseEntity<Void> deleteLoan(
             @PathVariable Long id,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         loanService.deleteLoan(id, user);
         return ResponseEntity.noContent().build();
     }
@@ -55,7 +63,9 @@ public class LoanController {
             @PathVariable Long id,
             @Valid @RequestBody LoanPaymentRequest request,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(loanService.recordPayment(id, request, user));
     }
 
@@ -64,7 +74,9 @@ public class LoanController {
             @PathVariable Long id,
             @PathVariable Long paymentId,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         loanService.deletePayment(id, paymentId, user);
         return ResponseEntity.noContent().build();
     }
@@ -74,7 +86,9 @@ public class LoanController {
             @RequestParam int year,
             @RequestParam int month,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        if (!(authentication.getPrincipal() instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(loanService.copyPaymentsFromPreviousMonth(user, year, month));
     }
