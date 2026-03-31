@@ -1,0 +1,2 @@
+-- Update biweekly calculation: now means twice a month (amount × 2) instead of every 2 weeks (amount × 26/12)
+-- No schema change needed since BIWEEKLY was already allowed
