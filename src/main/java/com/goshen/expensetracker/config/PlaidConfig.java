@@ -33,10 +33,12 @@ public class PlaidConfig {
         return apiClient.createService(PlaidApi.class);
     }
 
+    private static final String PLAID_DEVELOPMENT_URL = "https://development.plaid.com";
+
     private String resolveBaseUrl() {
         return switch (environment.toLowerCase(Locale.ROOT)) {
             case "production" -> ApiClient.Production;
-            case "development" -> ApiClient.Development;
+            case "development" -> PLAID_DEVELOPMENT_URL;
             case "sandbox" -> ApiClient.Sandbox;
             default -> throw new IllegalArgumentException("Unsupported plaid.environment: " + environment);
         };
